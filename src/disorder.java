@@ -5,6 +5,9 @@
  * boo eclipse booo
  */
 import java.util.*;
+import edu.princeton.cs.algs4.Quick;
+import edu.princeton.cs.algs4.QuickX;
+import edu.princeton.cs.algs4.Heap;
 
 	public class disorder {
 		/**
@@ -77,12 +80,18 @@ import java.util.*;
 			//int randRange = 100;
 			int listSize = 10;
 			int testsToRun = 10;
-			
-			double swapPercent = .50;
+			double maxSwapPercent = 1.05;
 			
 			for (int i = 1024; i < 65537; i = i*2){
 				System.out.println("Making ArrayList of length: " + i);
 				al = (ArrayList<Integer>) makeArray(i);
+				for (int j = 0; j < testsToRun; j++){
+					ArrayList<Integer> copy = al;
+					for (double swapAmt = 0; swapAmt < maxSwapPercent; swapAmt+=.05){
+						swap(copy, swapAmt);
+						
+					}
+				}
 				
 			}
 			
