@@ -13,7 +13,7 @@ import java.util.*;
 import edu.princeton.cs.algs4.Quick;
 import edu.princeton.cs.algs4.Heap;
 
-public class QuickVsHeap {
+public class QuickVsHeap {	
 	/**
 	 * display prints out passed in List of Integers with space between each
 	 * entry
@@ -94,8 +94,8 @@ public class QuickVsHeap {
 	}
 	
 
-	private static void test(ArrayList<Integer> qal, ArrayList<Integer> hal, double testsToRun, 
-			double maxSwapPercent, int start, int end, String filePath, Map<Integer, Map<Double, Double>> outer, Map<Double, Double> inner){
+	private static void test(ArrayList<Integer> qal, ArrayList<Integer> hal, double testsToRun, double maxSwapPercent, 
+			int start, int end, String filePath, Map<Integer, Map<Double, Double>> outer, Map<Double, Double> inner, double[][] resArrQ, double[][] resArrH){
 		
 		for (int i = start; i < end+1; i = i * 2) {
 			System.out.println("Making ArrayList of length: " + i);
@@ -139,21 +139,64 @@ public class QuickVsHeap {
 						String.valueOf(qTime/testsToRun) + "|" + String.valueOf(hTime/testsToRun);
 						
 				//writeToFile(filePath, toWrite);
+				//modify swap amt...				
+				double swapFix =  (((double)((int)(swapAmt * 100)))/100);
 				
+				//System.out.println("TEST 2D ARRAY\n" + (int) (Math.log(i)/Math.log(2)) + " " + (int) Math.ceil((swapFix*20)) 
+				//+ " " + (double)(qTime/testsToRun));
 				
+				//System.out.println("TEST FOR SWAP: " + swapFix + " = " + swapFix);
+				resArrQ[(int) (Math.log(i)/Math.log(2))][(int) Math.ceil(swapFix*20)] = (double) (qTime/testsToRun);
+				resArrH[(int) (Math.log(i)/Math.log(2))][(int) Math.ceil(swapFix*20)] = (double) (hTime/testsToRun);
 			}
 		}
 	}
+	
+	private static boolean goAgain(){
+		Scanner scan = new Scanner(System.in);
+		System.out.print("Would you like to check another (y/n): ");
+		char ans = scan.next().charAt(0);
+		boolean goAgain = true;
+		if (ans == 'n' || ans == 'Y') {
+			goAgain = false;
+		}
+		scan.close();
+		return goAgain;
+	}
+	
+	private static void viewArrUI(double[][] resArrQ, double[][] resArrH){
+		Scanner scan = new Scanner(System.in);
+		boolean goAgain = true;
+		while (goAgain) {
+			System.out.print("Enter size of array (10 - 16): ");
+			int size = scan.nextInt();
+			System.out.print("Enter swap amount of array (0.00 - 1.00 in increments of .05): ");
+			double swapAmt = scan.nextDouble();
+			int swapVal = (int) (swapAmt * 20);
+			
+			System.out.println("Time for Array Size " + Math.pow(2.0, (double) size) + "with Swap Amount: " + swapAmt + 
+					"Time in Milliseconds for QuickSort: " + resArrQ[size][swapVal] + "Time in Milliseconds for HeapSort: " + resArrH[size][swapVal]);
+			
+			goAgain = goAgain();
+		}	
+		scan.close();
+		System.out.println("Goodbye");
+	}
+
 
 	public static void main(String[] args) {
 		ArrayList<Integer> qal = new ArrayList<Integer>();
 		ArrayList<Integer> hal = new ArrayList<Integer>();
 		Map<Integer, Map<Double, Double>> outer = new HashMap<Integer, Map<Double, Double>>();
 		Map<Double, Double> inner = new HashMap<Double, Double>();
+		double[][] resArrQ = new double[20][30];
+		double[][] resArrH = new double[20][30];
+		
+		
 		long testsToRun = (long) 100.0000;
 		double maxSwapPercent = 1.05;
 		int start = 1024;
-		int end = 2048;//65536;
+		int end = 1024;//65536;
 		
 		
 		//write to csv sorry Ali
@@ -161,10 +204,11 @@ public class QuickVsHeap {
 		String filePath = "E:\\Documents\\1School\\SeniorYear\\Algorithms\\SORTING_NICK_PITTMAN\\src\\data.csv";
 
 		//test1(qal, testsToRun, maxSwapPercent, start, end, filePath);
-		test(qal, hal, testsToRun, maxSwapPercent, start, end, filePath, outer, inner);
+		test(qal, hal, testsToRun, maxSwapPercent, start, end, filePath, outer, inner, resArrQ, resArrH);
 		
-		//access nested hashmap
-		System.out.println(inner.get(.3));
-
+		viewArrUI(resArrQ, resArrH);
+		
+		
+		
 	}
 }
