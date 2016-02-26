@@ -94,7 +94,9 @@ public class QuickVsHeap {
 	}
 	
 
-	private static void test(ArrayList<Integer> qal, ArrayList<Integer> hal, double testsToRun, double maxSwapPercent, int start, int end, String filePath){
+	private static void test(ArrayList<Integer> qal, ArrayList<Integer> hal, double testsToRun, 
+			double maxSwapPercent, int start, int end, String filePath, Map<Integer, Map<Double, Double>> outer, Map<Double, Double> inner){
+		
 		for (int i = start; i < end+1; i = i * 2) {
 			System.out.println("Making ArrayList of length: " + i);
 			qal = (ArrayList<Integer>) makeArray(i);
@@ -130,10 +132,15 @@ public class QuickVsHeap {
 				System.out.println("ArraySize: " + i + " SwapAmount: " + swapAmt + " QuickTime: " 
 						+ qTime/testsToRun + " HeapTime: " + hTime/testsToRun);
 				
+				inner.put((Double)swapAmt, (Double)(qTime/testsToRun));
+				outer.put((Integer) i, inner);
+				
 				String toWrite = String.valueOf(i) + "/" + String.valueOf(swapAmt) + ":" + 
 						String.valueOf(qTime/testsToRun) + "|" + String.valueOf(hTime/testsToRun);
+						
+				//writeToFile(filePath, toWrite);
 				
-				writeToFile(filePath, toWrite);			
+				
 			}
 		}
 	}
@@ -141,18 +148,23 @@ public class QuickVsHeap {
 	public static void main(String[] args) {
 		ArrayList<Integer> qal = new ArrayList<Integer>();
 		ArrayList<Integer> hal = new ArrayList<Integer>();
+		Map<Integer, Map<Double, Double>> outer = new HashMap<Integer, Map<Double, Double>>();
+		Map<Double, Double> inner = new HashMap<Double, Double>();
 		long testsToRun = (long) 100.0000;
 		double maxSwapPercent = 1.05;
 		int start = 1024;
-		int end = 65536;
+		int end = 2048;//65536;
+		
 		
 		//write to csv sorry Ali
 		//PrinterWriter file = new PrinterWriter("E:\\Documents\\1School\\SeniorYear\\Algorithms\\SORTING_NICK_PITTMAN\\src\\data");
 		String filePath = "E:\\Documents\\1School\\SeniorYear\\Algorithms\\SORTING_NICK_PITTMAN\\src\\data.csv";
 
 		//test1(qal, testsToRun, maxSwapPercent, start, end, filePath);
-		test(qal, hal, testsToRun, maxSwapPercent, start, end, filePath);
-
+		test(qal, hal, testsToRun, maxSwapPercent, start, end, filePath, outer, inner);
+		
+		//access nested hashmap
+		System.out.println(inner.get(.3));
 
 	}
 }
