@@ -6,6 +6,7 @@
  */
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -33,24 +34,6 @@ public class QuickVsHeap {
 		System.out.println();
 	}
 
-	/**
-	 * populate fills list with random numbers within specified range
-	 * 
-	 * @param listIn
-	 *            list to be populated
-	 * @param size
-	 *            number of numbers to put into the list
-	 * @param randRange
-	 *            range for random, random numbers will be in range (0,
-	 *            randRange)
-	 */
-	private static void populate(List<Integer> listIn, int size, int randRange) {
-		Random r = new Random();
-		while (size > 0) {
-			listIn.add(r.nextInt(randRange));
-			size--;
-		}
-	}
 
 	/**
 	 * populateInOrder fills a list with numbers in ascending order
@@ -66,24 +49,18 @@ public class QuickVsHeap {
 		}
 	}
 
-	/**
-	 * swap swaps numbers in list a percentage of the size times
-	 * 
-	 * @param list
-	 *            list to be have Integers swapped
-	 * @param swapPercent
-	 *            percentage to swap, number of swaps = swapPercent*list.size()
-	 */
-	private static void swap(List<Integer> list, double swapPercent) {
+
+	
+	private static void swapArr(Integer[] arr, double swapPercent){
 		Random ugh = new Random();
-		int numSwaps = (int) (list.size() * swapPercent);
-		for (int i = 0; i < numSwaps; i++) {
-			int indOne = ugh.nextInt(list.size());
-			int indTwo = ugh.nextInt(list.size());
-			int numOne = list.get(indOne);
-			int numTwo = list.get(indTwo);
-			list.set(indTwo, numOne);
-			list.set(indOne, numTwo);
+		int numSwaps = (int) (arr.length * swapPercent);
+		for (int i = 0; i < numSwaps; i++){
+			int indOne = ugh.nextInt(arr.length);
+			int indTwo = ugh.nextInt(arr.length);
+			int numOne = arr[indOne];
+			int numTwo = arr[indTwo];
+			arr[indOne] = numTwo;
+			arr[indTwo] = numOne;
 		}
 	}
 
@@ -101,76 +78,81 @@ public class QuickVsHeap {
 	private static void heapTest(Integer[] hArray){
 		Heap.sort(hArray);
 	}
-
-	public static void main(String[] args) {
-		ArrayList<Integer> al = new ArrayList<Integer>();
-		long testsToRun = (long) 100.0000;
-		double maxSwapPercent = 1.05;
-		int start = 1024;
-		int end = 65536;
-		long sTime = System.currentTimeMillis();
-		
-		//write to csv sorry Ali
-		File file = new File("C:\\Users\\Nick\\Documents\\AlgoWorkSpace\\QuickSortVsHeapSort\\src\\data.txt");
-        FileWriter fw = null;
-        //ugh
-        BufferedWriter writer = null;
+	
+	private static void writeToFile(String filePath, String toWrite){
 		try {
-			fw = new FileWriter(file);
-			writer = new BufferedWriter( fw );
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter("E:\\Documents\\1School\\SeniorYear\\Algorithms\\SORTING_NICK_PITTMAN\\src\\data.csv", true));
+			bw.write(toWrite);
+			bw.newLine();
+			bw.flush();
+			bw.close();
 		} catch (IOException e) {
+			System.out.print("UGH");
 			e.printStackTrace();
 		}
-		
+	}
+	
 
+	private static void test(ArrayList<Integer> qal, ArrayList<Integer> hal, double testsToRun, double maxSwapPercent, int start, int end, String filePath){
 		for (int i = start; i < end+1; i = i * 2) {
 			System.out.println("Making ArrayList of length: " + i);
-			al = (ArrayList<Integer>) makeArray(i);
+			qal = (ArrayList<Integer>) makeArray(i);
+			hal = (ArrayList<Integer>) makeArray(i);
+			
 			for (double swapAmt = .0; swapAmt < maxSwapPercent; swapAmt += .05) {
 				long qTime = 0;
 				long hTime = 0;
+				
 				for (int j = 0; j < testsToRun; j++) {
-					ArrayList<Integer> qCopy = al;
-					ArrayList<Integer> hCopy = al;
-					swap(qCopy, swapAmt);
-					swap(hCopy, swapAmt);
-					Integer[] qArray = qCopy.toArray(new Integer[al.size()]);
-					Integer[] hArray = hCopy.toArray(new Integer[al.size()]);
+					Integer[] qArr = qal.toArray(new Integer[qal.size()]);
+					Integer[] hArr = hal.toArray(new Integer[hal.size()]);
 					
+					//Swap numbers around in arrays
+					swapArr(qArr, swapAmt);
+					swapArr(hArr, swapAmt);
+										
 					//QUICK TIME
 					long qStartTime = System.currentTimeMillis();
-					quickTest(qArray);
+					quickTest(qArr);
 					long qEndTime = System.currentTimeMillis();
 					long qDuration = (qEndTime - qStartTime);
+					//System.out.println("quick: " + qDuration);
 					qTime+=qDuration;
 					
-					//HEAP TIME
+					//HEAP TIME						
 					long hStartTime = System.currentTimeMillis();
-					heapTest(hArray);
+					heapTest(hArr);
 					long hEndTime = System.currentTimeMillis();
 					long hDuration = (hEndTime - hStartTime);
 					hTime+=hDuration;
 				}
 				System.out.println("ArraySize: " + i + " SwapAmount: " + swapAmt + " QuickTime: " 
 						+ qTime/testsToRun + " HeapTime: " + hTime/testsToRun);
-				//write to file here
-				try {
-					writer.write(i + " " + swapAmt + " " + qTime/testsToRun + " " + hTime/testsToRun);
-					writer.newLine();
-				} catch (IOException e) {
-					System.out.println("writer failed to write");
-				}
+				
+				String toWrite = String.valueOf(i) + "/" + String.valueOf(swapAmt) + ":" + 
+						String.valueOf(qTime/testsToRun) + "|" + String.valueOf(hTime/testsToRun);
+				
+				writeToFile(filePath, toWrite);			
 			}
 		}
-		long eTime = System.currentTimeMillis();
-		long totalTime = (eTime - sTime);
-		System.out.println(totalTime/1000 + " in seconds");
-		try {
-			writer.flush();
-			writer.close();
-		    fw.close();
-		} catch (IOException e) {
-			System.out.println("no close");
-		}
+	}
+
+	public static void main(String[] args) {
+		ArrayList<Integer> qal = new ArrayList<Integer>();
+		ArrayList<Integer> hal = new ArrayList<Integer>();
+		long testsToRun = (long) 100.0000;
+		double maxSwapPercent = 1.05;
+		int start = 1024;
+		int end = 65536;
+		
+		//write to csv sorry Ali
+		//PrinterWriter file = new PrinterWriter("E:\\Documents\\1School\\SeniorYear\\Algorithms\\SORTING_NICK_PITTMAN\\src\\data");
+		String filePath = "E:\\Documents\\1School\\SeniorYear\\Algorithms\\SORTING_NICK_PITTMAN\\src\\data.csv";
+
+		//test1(qal, testsToRun, maxSwapPercent, start, end, filePath);
+		test(qal, hal, testsToRun, maxSwapPercent, start, end, filePath);
+
+
 	}
 }
